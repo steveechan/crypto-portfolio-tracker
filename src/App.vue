@@ -9,13 +9,14 @@
   <button @click="addData"> Add </button>
   </div>
   <div class="portfolio">
-    <table class="style-table">
+    <table>
     <thead>
         <tr>
             <th>Token</th>
             <th>Price</th>
             <th>Quantity</th>
-            <th>Total Value</th>
+            <th>Total Investment</th>
+            <th>Current Investment</th>
             <th>Current Price</th>
         </tr>
     </thead>
@@ -25,7 +26,8 @@
             <td> {{ "$" + token.price }} </td>
             <td> {{ token.quantity }} </td>
             <td> {{ "$" + token.totalVal }} </td>
-            <td> {{ token.curr.current_price }}</td>
+            <td> {{ "$" + parseFloat(token.curr.current_price) * token.quantity }} </td>
+            <td> {{ "$" + token.curr.current_price }}</td>
         </tr>
             
     </tbody>
@@ -71,7 +73,6 @@ export default {
         totalVal: parseFloat(this.token.price) * this.token.quantity,
         curr: this.coins.find(c=>c.symbol === this.token.name),
       })
-      console.log(this.curr);
       this.token.name = "";
       this.token.price = "";
       this.token.quantity = "";
@@ -82,7 +83,21 @@ export default {
 </script>
 
 <style>
+
+* {
+  font-family: 'Poppins', sans-serif;
+}
+table,
+th,
 td {
-  text-align: center;
+  border: 10px solid rgba(187, 169, 169, 0.548);
+  padding: 10px;
+  border-collapse: collapse;
+}
+
+.portfolio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
