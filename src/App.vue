@@ -2,9 +2,10 @@
 <div class="app">
   <div v-if="showModal" class="modal-mask">
     <div class="entry">
-    Token <select required v-model="token.name"> 
+    Token <input list="coinOptions" v-model="token.name"> 
+    <datalist id="coinOptions">
             <option v-for="coin in coins" :key="coin.item"> {{ coin.symbol }} </option>
-          </select> <br>
+    </datalist> <br>
     Price <input type="number" required v-model="token.price"> <br>
     Quantity <input type="number" required v-model="token.quantity"> <br>
     <button @click="addData"> Add </button>
@@ -21,6 +22,7 @@
             <th>Total Investment</th>
             <th>Current Investment</th>
             <th>Current Price</th>
+            <th>Profit/Loss</th>
             <th><button v-if="showPlus" @click="showAdd"> + </button></th>
         </tr>
     </thead>
@@ -30,12 +32,12 @@
             <td> {{ token.name.toUpperCase() }} </td>
             <td> {{ "$" + token.price }} </td>
             <td> {{ token.quantity }} </td>
-            <td> {{ "$" + token.totalVal }} </td>
-            <td> {{ "$" + parseFloat(token.curr.current_price) * token.quantity }} </td>
-            <td> {{ "$" + token.curr.current_price }} <button @click="removeData" class="minus"> - </button></td>
-        </tr>
-
-            
+            <td> {{ "$" + token.totalVal.toFixed(2) }} </td>
+            <td> {{ "$" + token.totalIn.toFixed(2) }} </td>
+            <td> {{ "$" + token.curr.current_price }} </td>
+            <td> {{ "$" + token.profit.toFixed(2) }}  </td>
+            <td> <button @click="removeData" class="minus"> - </button> </td>
+        </tr>          
     </tbody>
     </table>
   </div>
@@ -59,6 +61,7 @@ export default {
         totalVal: 0,
         totalIn: 0,
         curr: 0,
+        profit: 0,
       },
 
       coins: [],
@@ -83,18 +86,22 @@ export default {
     },
 
     addData() {
+      let x = this.coins.find(c=>c.symbol === this.token.name);
       this.tokens.push( {
         name: this.token.name,
         price: this.token.price,
         quantity: this.token.quantity,
         totalVal: parseFloat(this.token.price) * this.token.quantity,
-        totalIn: parseFloat(this.token.curr.current_price) * this.token.quantity,
-        curr: this.coins.find(c=>c.symbol === this.token.name),
+        totalIn: parseFloat(x.current_price) * this.token.quantity,
+        curr: x,
+        profit: (parseFloat(x.current_price) * this.token.quantity) - (parseFloat(this.token.price) * this.token.quantity),
       })
       this.token.name = "";
       this.token.price = "";
       this.token.quantity = "";
-      this.curr = "";
+      this.totalVal = 0;
+      this.totalIn = 0;
+      this.curr = 0;
       this.image = true;
       this.showPlus = true;
       this.showModal = false;
@@ -130,6 +137,10 @@ export default {
   border-radius: 2px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
 .portfolio {
   display: flex;
