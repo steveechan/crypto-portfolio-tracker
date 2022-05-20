@@ -49,6 +49,18 @@
 export default {
   mounted() {
     this.fetchCoins();
+    
+    if(localStorage.tokens) {
+        this.tokens = JSON.parse(localStorage.tokens);
+    }
+  },
+  watch: {
+    tokens: {
+      handler(newTokens) {
+      localStorage.tokens = JSON.stringify(newTokens);
+      },
+      deep: true
+    }
   },
   data () {
     return {
@@ -66,7 +78,7 @@ export default {
 
       coins: [],
 
-      image: false,
+      image: true,
 
       showModal: false,
       showPlus: true,
