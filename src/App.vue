@@ -27,15 +27,15 @@
         </tr>
     </thead>
     <tbody>
-        <tr class="active-row" v-for="(token, index) in tokens" :key="index">
-            <td> <img :src="token.curr.image" class="tokenimage" /> </td>
-            <td> {{ token.name.toUpperCase() }} </td>
-            <td> {{ "$" + token.price }} </td>
-            <td> {{ token.quantity }} </td>
-            <td> {{ "$" + token.totalVal.toFixed(2) }} </td>
-            <td> {{ "$" + token.totalIn.toFixed(2) }} </td>
-            <td> {{ "$" + token.curr.current_price }} </td>
-            <td> {{ "$" + token.profit.toFixed(2) }}  </td>
+        <tr class="active-row" v-for="(merge, index) in merged" :key="index">
+            <td> <img :src="merge.image" class="tokenimage" /> </td>
+            <td> {{ merge.name.toUpperCase() }} </td>
+            <td> {{ "$" + merge.price }} </td>
+            <td> {{ merge.quantity }} </td>
+            <td> {{ "$" + merge.totalVal.toFixed(2) }} </td>
+            <td> {{ "$" + merge.totalIn.toFixed(2) }} </td>
+            <td> {{ "$" + merge.current_price }} </td>
+            <td> {{ "$" + merge.profit.toFixed(2) }}  </td>
             <td> <button @click="removeData" class="minus"> - </button> </td>
         </tr>          
     </tbody>
@@ -85,7 +85,19 @@ export default {
 
     }
   },
+  computed:{
+  merged(){
+    let m = this.tokens.map(t=>{
+      let mt = this.coins.find(c=>c.symbol === t.name);
+      if(mt){
+        return Object.assign(t, mt);
+      }
+      return t;
+    });
+    return m;
+  }
 
+},
   methods: {
     async fetchCoins() {
       const response = await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=1h");
@@ -147,7 +159,7 @@ export default {
   padding: 20px 30px;
   background-color: #fff;
   border-radius: 2px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
+  box-shadow: 0 2px 8px #009879;
   transition: all 0.3s ease;
   position: absolute;
   left: 50%;
