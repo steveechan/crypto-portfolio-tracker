@@ -52,7 +52,21 @@
         </tr>          
     </tbody>
     <tfoot>
-      <tr>
+      <tr v-if="footer" class="active-row">
+        <td> Total </td> 
+        <td> {{ merged.length }}</td>
+        <td> ${{ totalPrice.toFixed(2) }}</td>
+        <td> </td>
+        <td> ${{ totalInvestment.toFixed(2) }} </td>
+        <td> ${{ totalCurr.toFixed(2) }} </td>
+        <td> </td>
+        <td :class="[
+              totalGain < 0 ? 'red' : '',
+              ]"> ${{ totalGain.toFixed(2) }}</td>
+        <td> </td>
+        <td :class="[
+              totalReturn * 100 < 0 ? 'red' : '',
+              ]"> {{ (totalReturn * 100).toFixed(2) }}%</td>
       </tr>
     </tfoot>
     </table>
@@ -68,6 +82,10 @@ export default {
     if(localStorage.tokens) {
         this.tokens = JSON.parse(localStorage.tokens);
     }
+
+    if(this.tokens.length > 0) {
+        this.footer = true;
+      }
   },
   watch: {
     tokens: {
@@ -95,9 +113,43 @@ export default {
       image: true,
       showModal: false,
       showPlus: true,
+      footer: false,
     }
   },
   computed: {
+    totalPrice(){
+      let x = 0;
+      for(let i = 0; i < this.merged.length; i++) {
+        x += this.merged[i].price;
+      }
+      return x;
+    }, 
+    totalInvestment(){
+      let x = 0;
+      for(let i = 0; i < this.merged.length; i++) {
+        x += this.merged[i].totalVal;
+      }
+      return x;
+    }, 
+    totalCurr(){
+      let x = 0;
+      for(let i = 0; i < this.merged.length; i++) {
+        x += this.merged[i].current_price * this.merged[i].quantity;
+      }
+      return x;
+    }, 
+    totalGain(){
+      let x = 0;
+      for(let i = 0; i < this.merged.length; i++) {
+        x += this.merged[i].current_price * this.merged[i].quantity - this.merged[i].price * this.merged[i].quantity;
+      }
+      return x;
+    }, 
+    totalReturn() {
+      let x = 0;
+      x = (this.totalCurr - this.totalInvestment) / this.totalInvestment
+      return x;
+    },
     merged(){
     let m = this.tokens.map(t=>{
       let mt = this.coins.find(c=>c.name === t.curr.name);
@@ -110,20 +162,23 @@ export default {
 
     return m;
     },
+
   },
   methods: {
     async fetchCoins() {
       const response = await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=1h");
       const data = await response.json();
       this.coins = this.coins.concat(data);
-      console.log(data);
 
     },
+    
     showAdd() {
       this.showModal = true;
+      this.footer = true;
     },
     addData() {
       let x = this.coins.find(c=>c.name === this.token.name);
+
       this.tokens.push( {
         name: this.token.name,
         price: this.token.price,
@@ -143,6 +198,9 @@ export default {
     },
     removeData(index) {
       this.tokens.splice(index, 1);
+      if(this.tokens.length === 0) {
+        this.footer = false;
+      }
     },
   },
 }
@@ -266,6 +324,11 @@ input {
   color: red;
 }
 .styled-table tbody tr.active-row {
+    font-weight: bold;
+    color: #009879;
+}
+
+.styled-table tfoot tr.active-row {
     font-weight: bold;
     color: #009879;
 }
