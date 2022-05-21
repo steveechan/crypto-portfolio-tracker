@@ -68,6 +68,7 @@
         <td :class="[
               totalReturn * 100 < 0 ? 'red' : '',
               ]"> {{ (totalReturn * 100).toFixed(2) }}%</td>
+        <td> </td>
       </tr>
     </tfoot>
     </table>
@@ -208,6 +209,13 @@ export default {
 </script>
 
 <style>
+
+@media (prefers-color-scheme: light) {
+  body {
+    background: #121212;
+  }
+}
+
 * {
   font-family: 'Poppins', sans-serif;
 }
@@ -323,6 +331,12 @@ input {
     color: #ffffff;
     text-align: left;
 }
+
+.styled-table tfoot tr {
+    background-color: #009879;
+    color: #ffffff;
+    text-align: left;
+}
 .styled-table th,
 .styled-table td {
     padding: 12px 15px;
@@ -347,7 +361,7 @@ input {
 
 .styled-table tfoot tr.active-row {
     font-weight: bold;
-    color: #009879;
+    color: white;
 }
 .tokenimage {
   width: 20px;
