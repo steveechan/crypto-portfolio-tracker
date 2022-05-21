@@ -4,7 +4,7 @@
     <div class="entry">
     Token <input list="coinOptions" v-model="token.name"> 
     <datalist id="coinOptions">
-            <option v-for="coin in coins" :key="coin.item"> {{ coin.symbol }} </option>
+            <option v-for="coin in coins" :key="coin.item"> {{ coin.name }} </option>
     </datalist> <br>
     Price <input type="number" required v-model="token.price"> <br>
     Quantity <input type="number" required v-model="token.quantity"> <br>
@@ -29,13 +29,13 @@
     <tbody>
         <tr class="active-row" v-for="(merge, index) in merged" :key="index">
             <td> <img :src="merge.image" class="tokenimage" /> </td>
-            <td> {{ merge.name.toUpperCase() }} </td>
+            <td> {{  merge.symbol.toUpperCase() }} </td>
             <td> {{ "$" + merge.price }} </td>
             <td> {{ merge.quantity }} </td>
             <td> {{ "$" + merge.totalVal.toFixed(2) }} </td>
-            <td> {{ "$" + merge.totalIn.toFixed(2) }} </td>
-            <td> {{ "$" + merge.current_price }} </td>
-            <td> {{ "$" + merge.profit.toFixed(2) }}  </td>
+            <td> {{ "$" + (merge.current_price * merge.quantity).toFixed(2) }} </td>
+            <td> {{ "$" + merge.current_price.toFixed(2) }} </td>
+            <td> ${{ (merge.current_price * merge.quantity - merge.price * merge.quantity).toFixed(2) }} </td>
             <td> <button @click="removeData" class="minus"> - </button> </td>
         </tr>          
     </tbody>
@@ -45,7 +45,6 @@
 </template>
 
 <script>
-
 export default {
   mounted() {
     this.fetchCoins();
@@ -71,79 +70,70 @@ export default {
         price: "",
         quantity: "",
         totalVal: 0,
-        totalIn: 0,
         curr: 0,
         profit: 0,
       },
-
       coins: [],
-
       image: true,
-
       showModal: false,
       showPlus: true,
-
     }
   },
-  computed:{
-  merged(){
+  computed: {
+    merged(){
     let m = this.tokens.map(t=>{
-      let mt = this.coins.find(c=>c.symbol === t.name);
+      let mt = this.coins.find(c=>c.name === t.curr.name);
       if(mt){
         return Object.assign(t, mt);
       }
+
       return t;
     });
-    return m;
-  }
 
-},
+    return m;
+    }
+  },
   methods: {
     async fetchCoins() {
       const response = await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=1h");
       const data = await response.json();
       this.coins = this.coins.concat(data);
-    },
 
+    },
     showAdd() {
       this.showModal = true;
     },
-
     addData() {
-      let x = this.coins.find(c=>c.symbol === this.token.name);
+      let x = this.coins.find(c=>c.name === this.token.name);
       this.tokens.push( {
         name: this.token.name,
         price: this.token.price,
         quantity: this.token.quantity,
         totalVal: parseFloat(this.token.price) * this.token.quantity,
-        totalIn: parseFloat(x.current_price) * this.token.quantity,
         curr: x,
         profit: (parseFloat(x.current_price) * this.token.quantity) - (parseFloat(this.token.price) * this.token.quantity),
       })
+      console.log(this.tokens);
       this.token.name = "";
       this.token.price = "";
       this.token.quantity = "";
       this.totalVal = 0;
-      this.totalIn = 0;
       this.curr = 0;
       this.image = true;
       this.showPlus = true;
       this.showModal = false;
     },
-
     removeData(index) {
       this.tokens.splice(index, 1);
-    }
+    },
   },
 }
 </script>
 
 <style>
-
 * {
   font-family: 'Poppins', sans-serif;
 }
-
 .modal-mask {
   position: fixed;
   z-index: 9998;
@@ -171,7 +161,6 @@ export default {
   align-items: center;
   justify-content: center;
 }
-
 .styled-table {
     border-collapse: collapse;
     margin: 25px 0;
@@ -179,43 +168,34 @@ export default {
     min-width: 400px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 }
-
 .styled-table thead tr {
     background-color: #009879;
     color: #ffffff;
     text-align: left;
 }
-
 .styled-table th,
 .styled-table td {
     padding: 12px 15px;
 }
-
 .styled-table tbody tr {
     border-bottom: 1px solid #dddddd;
 }
-
 .styled-table tbody tr:nth-of-type(even) {
     background-color: #f3f3f3;
 }
-
 .styled-table tbody tr:last-of-type {
     border-bottom: 2px solid #009879;
 }
-
 .styled-table tbody tr.active-row {
     font-weight: bold;
     color: #009879;
 }
-
 .tokenimage {
   width: 20px;
   height: 20px;
   display: block;
 }
-
 .minus {
   float: right;
 }
-
 </style>
