@@ -30,7 +30,7 @@
     </thead>
     <tbody>
         <tr class="active-row" v-for="(merge, index) in merged" :key="index">
-            <td> <img :src="merge.image" class="tokenimage" /> </td>
+            <td class="symbolpic"> <img :src="merge.image" class="tokenimage" /> </td>
             <td> {{  merge.symbol.toUpperCase() }} </td>
             <td> {{ "$" + merge.price.toFixed(2) }} </td>
             <td> {{ merge.quantity.toLocaleString() }} </td>
@@ -49,7 +49,8 @@
               ((merge.current_price - merge.price) / (merge.price)) < 0 ? 'red' : '',
               ]"> {{ ((merge.current_price - merge.price) / (merge.price) * 100).toFixed(2) }}% </td>
             <td> <button @click="removeData(index)" class="minus"> - </button> </td>
-        </tr>          
+            
+        </tr>     
     </tbody>
     <tfoot>
       <tr v-if="footer" class="active-row">
@@ -209,6 +210,22 @@ export default {
 <style>
 * {
   font-family: 'Poppins', sans-serif;
+}
+
+.symbolpic {
+  -webkit-animation: spin 1s linear infinite;
+  -moz-animation: spin 1s linear infite;
+  animation: spin 1s linear infite;
+}
+
+@-webkit-keyframes spin {
+  100%{-webkit-transform: rotate(360deg);}
+}
+@-moz-keyframes spin{
+  100%{-webkit-transform: rotate(360deg);}
+}
+@keyframes spin {
+  100%{-webkit-transform: rotate(360deg);}
 }
 
 .add, 
