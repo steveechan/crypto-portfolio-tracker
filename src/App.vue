@@ -2,13 +2,13 @@
 <div class="app">
   <div v-if="showModal" class="modal-mask">
     <div class="entry">
-    Token <input list="coinOptions" v-model="token.name"> 
+    <span> Token </span> <input list="coinOptions" v-model="token.name"> 
     <datalist id="coinOptions">
             <option v-for="coin in coins" :key="coin.item"> {{ coin.name }} </option>
-    </datalist> <br>
-    Price <input type="number" required v-model="token.price"> <br>
-    Quantity <input type="number" required v-model="token.quantity"> <br>
-    <button @click="addData"> Add </button>
+    </datalist> <br> <br>
+    <span> Price </span> <input type="number" required v-model="token.price"> <br> <br>
+    <span> Quantity </span> <input type="number" required v-model="token.quantity"> <br> <br>
+    <button class="addDataButton" @click="addData"> <span> Add </span> </button>
     </div>
   </div>
   <div class="portfolio">
@@ -35,10 +35,18 @@
             <td> {{ "$" + merge.totalVal.toFixed(2) }} </td>
             <td> {{ "$" + (merge.current_price * merge.quantity).toFixed(2) }} </td>
             <td> {{ "$" + merge.current_price.toFixed(2) }} </td>
-            <td> ${{ (merge.current_price * merge.quantity - merge.price * merge.quantity).toFixed(2) }} </td>
-            <td> <button @click="removeData" class="minus"> - </button> </td>
+            <td :class="
+            [
+              merge.current_price * merge.quantity - merge.price * merge.quantity < 0 ? 'red' : '',
+            ]"
+            > ${{ (merge.current_price * merge.quantity - merge.price * merge.quantity).toFixed(2) }} </td>
+            <td> <button @click="removeData(index)" class="minus"> - </button> </td>
         </tr>          
     </tbody>
+    <tfoot>
+      <tr>
+      </tr>
+    </tfoot>
     </table>
   </div>
 </div>
@@ -65,6 +73,8 @@ export default {
     return {
       tokens: [],
       
+      red: false,
+
       token: {
         name: "",
         price: "",
@@ -91,7 +101,7 @@ export default {
     });
 
     return m;
-    }
+    },
   },
   methods: {
     async fetchCoins() {
@@ -113,7 +123,6 @@ export default {
         curr: x,
         profit: (parseFloat(x.current_price) * this.token.quantity) - (parseFloat(this.token.price) * this.token.quantity),
       })
-      console.log(this.tokens);
       this.token.name = "";
       this.token.price = "";
       this.token.quantity = "";
@@ -133,6 +142,57 @@ export default {
 <style>
 * {
   font-family: 'Poppins', sans-serif;
+}
+
+span {
+  font-weight: bold;
+}
+button {
+border: none;
+}
+.addDataButton span {
+  position: relative; 
+  z-index: 1;
+}
+.addDataButton {
+  border: none;
+  display: block;
+  text-align: center;
+  cursor: pointer;
+  text-transform: uppercase;
+  outline: none;
+  overflow: hidden;
+  position: relative;
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+  background-color: #222;
+  padding: 17px 60px;
+  margin: 0 auto;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.20);
+}
+
+.addDataButton:hover:after {
+  -webkit-transform: translateX(-9%) translateY(-25%) rotate(45deg);
+  transform: translateX(-9%) translateY(-25%) rotate(45deg);
+}
+
+.addDataButton:after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 490%;
+  width: 140%;
+  background: #009879;
+  -webkit-transition: all .5s ease-in-out;
+  transition: all .5s ease-in-out;
+  -webkit-transform: translateX(-50%) translateY(-25%) rotate(45deg);
+  transform: translateX(-98%) translateY(-25%) rotate(45deg);
+}
+
+input {
+  float: right;
 }
 .modal-mask {
   position: fixed;
@@ -185,6 +245,10 @@ export default {
 }
 .styled-table tbody tr:last-of-type {
     border-bottom: 2px solid #009879;
+}
+
+.red {
+  color: red;
 }
 .styled-table tbody tr.active-row {
     font-weight: bold;
