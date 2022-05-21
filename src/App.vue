@@ -23,23 +23,31 @@
             <th>Current Investment</th>
             <th>Current Price</th>
             <th>Profit/Loss</th>
-            <th><button v-if="showPlus" @click="showAdd"> + </button></th>
+            <th>Daily Return</th> 
+            <th>Total Return </th>
+            <th><button v-if="showPlus" class="add" @click="showAdd"> + </button></th>
         </tr>
     </thead>
     <tbody>
         <tr class="active-row" v-for="(merge, index) in merged" :key="index">
             <td> <img :src="merge.image" class="tokenimage" /> </td>
             <td> {{  merge.symbol.toUpperCase() }} </td>
-            <td> {{ "$" + merge.price }} </td>
-            <td> {{ merge.quantity }} </td>
+            <td> {{ "$" + merge.price.toFixed(2) }} </td>
+            <td> {{ merge.quantity.toLocaleString() }} </td>
             <td> {{ "$" + merge.totalVal.toFixed(2) }} </td>
             <td> {{ "$" + (merge.current_price * merge.quantity).toFixed(2) }} </td>
-            <td> {{ "$" + merge.current_price.toFixed(2) }} </td>
+            <td> {{ "$" + (merge.current_price).toFixed(2) }} </td>
             <td :class="
             [
               merge.current_price * merge.quantity - merge.price * merge.quantity < 0 ? 'red' : '',
             ]"
-            > ${{ (merge.current_price * merge.quantity - merge.price * merge.quantity).toFixed(2) }} </td>
+            > ${{ ((merge.current_price * merge.quantity - merge.price * merge.quantity).toFixed(2)).toLocaleString() }} </td>
+            <td :class="[
+              merge.price_change_percentage_24h.toFixed < 0 ? 'red' : '',
+              ]"> {{ merge.price_change_percentage_24h.toFixed(2) }}% </td>
+            <td :class="[
+              ((merge.current_price - merge.price) / (merge.price)) < 0 ? 'red' : '',
+              ]"> {{ ((merge.current_price - merge.price) / (merge.price) * 100).toFixed(2) }}% </td>
             <td> <button @click="removeData(index)" class="minus"> - </button> </td>
         </tr>          
     </tbody>
@@ -108,6 +116,7 @@ export default {
       const response = await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=1h");
       const data = await response.json();
       this.coins = this.coins.concat(data);
+      console.log(data);
 
     },
     showAdd() {
@@ -144,6 +153,12 @@ export default {
   font-family: 'Poppins', sans-serif;
 }
 
+.add, 
+.minus {
+  background-color: grey;
+  font-weight: bold;
+  color: white;
+}
 span {
   font-weight: bold;
 }
