@@ -17,7 +17,7 @@
         <tr>
             <th v-if="image">  </th>
             <th>Token</th>
-            <th>Price</th>
+            <th>Average Price</th>
             <th>Quantity</th>
             <th>Total Investment</th>
             <th>Current Investment</th>
@@ -33,7 +33,7 @@
             <td class="symbolpic"> <img :src="merge.image" class="tokenimage" /> </td>
             <td> {{  merge.symbol.toUpperCase() }} </td>
             <td> {{ "$" + merge.price.toFixed(2) }} </td>
-            <td> {{ merge.quantity.toLocaleString() }} </td>
+            <td> {{ merge.quantity }} </td>
             <td> {{ "$" + merge.totalVal.toFixed(2) }} </td>
             <td> {{ "$" + (merge.current_price * merge.quantity).toFixed(2) }} </td>
             <td> {{ "$" + (merge.current_price).toFixed(2) }} </td>
@@ -82,12 +82,13 @@ export default {
     this.fetchCoins();
     
     if(localStorage.tokens) {
-        this.tokens = JSON.parse(localStorage.tokens);
+      this.tokens = JSON.parse(localStorage.tokens);
     }
 
     if(this.tokens.length > 0) {
-        this.footer = true;
-      }
+      this.footer = true;
+    }
+
   },
   watch: {
     tokens: {
@@ -180,7 +181,13 @@ export default {
     },
     addData() {
       let x = this.coins.find(c=>c.name === this.token.name);
-
+      let s = this.tokens.filter(tok => tok.name === this.token.name)
+      if(s.length > 0) {
+       s[0].quantity += this.token.quantity;
+       s[0].totalVal += this.token.totalVal + this.token.quantity * this.token.price;
+       s[0].price = s[0].totalVal / s[0].quantity;
+      }
+      else {
       this.tokens.push( {
         name: this.token.name,
         price: this.token.price,
@@ -188,7 +195,8 @@ export default {
         totalVal: parseFloat(this.token.price) * this.token.quantity,
         curr: x,
         profit: (parseFloat(x.current_price) * this.token.quantity) - (parseFloat(this.token.price) * this.token.quantity),
-      })
+        })
+      }
       this.token.name = "";
       this.token.price = "";
       this.token.quantity = "";
