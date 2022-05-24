@@ -2,6 +2,7 @@
 <div class="app">
   <div v-if="showModal" class="modal-mask">
     <div class="entry">
+      <button class="closeButton" @click="closeData"> X </button> 
     <span> Token </span> <input list="coinOptions" v-model="token.name"> 
     <datalist id="coinOptions">
             <option v-for="coin in coins" :key="coin.item"> {{ coin.name }} </option>
@@ -175,6 +176,9 @@ export default {
 
     },
     
+    closeData() {
+      this.showModal = false;
+    },
     showAdd() {
       this.showModal = true;
       this.footer = true;
@@ -182,6 +186,10 @@ export default {
     addData() {
       let x = this.coins.find(c=>c.name === this.token.name);
       let s = this.tokens.filter(tok => tok.name === this.token.name)
+      if(this.token.price == "" || this.token.quantity == "") {
+        this.token.price = 1;
+        this.token.quantity = 1;
+      }
       if(s.length > 0) {
        s[0].quantity += this.token.quantity;
        s[0].totalVal += this.token.totalVal + this.token.quantity * this.token.price;
@@ -228,6 +236,14 @@ export default {
   font-family: 'Poppins', sans-serif;
 }
 
+.closeButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-weight: 1000;
+  color: white;
+  background-color: #222; 
+}
 .symbolpic {
   -webkit-animation: spin 1s linear infinite;
   -moz-animation: spin 1s linear infite;
