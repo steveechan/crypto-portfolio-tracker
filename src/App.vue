@@ -170,10 +170,33 @@ export default {
   },
   methods: {
     async fetchCoins() {
+      if(!this.getDate() || parseInt(this.getDate()) + 60000 <= Date.now()) {
       const response = await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=1h");
       const data = await response.json();
       this.coins = this.coins.concat(data);
+      this.setDate();
+      this.setData();
+      }
+      else{
+        this.getData();
+      }
+    },
 
+    setDate() {
+      let timeNow = Date.now();
+      localStorage.setItem('time', timeNow.toString());
+    },
+    getDate() {
+      let get_time = localStorage.getItem('time', "0");
+      return get_time;
+    },
+    setData() {
+      localStorage.setItem('coin-info', JSON.stringify(this.coins))
+    },
+
+    getData() {
+      let get_data = localStorage.getItem('coin-info');
+      this.coins = JSON.parse(get_data);
     },
     
     closeData() {
